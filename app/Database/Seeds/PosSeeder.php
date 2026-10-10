@@ -1,0 +1,3 @@
+<?php namespace App\Database\Seeds;
+use CodeIgniter\Database\Seeder;
+class PosSeeder extends Seeder { public function run(){ $this->db->table('users')->insert(['username'=>'admin','full_name'=>'System Administrator','password'=>password_hash('password',PASSWORD_DEFAULT),'created_at'=>date('Y-m-d H:i:s')]);$this->db->table('products')->insertBatch([['name'=>'Coffee Beans','price'=>12.50,'stock_quantity'=>40,'created_at'=>date('Y-m-d H:i:s')],['name'=>'Ceramic Mug','price'=>8.00,'stock_quantity'=>25,'created_at'=>date('Y-m-d H:i:s')],['name'=>'Notebook','price'=>5.75,'stock_quantity'=>60,'created_at'=>date('Y-m-d H:i:s')]]); } }

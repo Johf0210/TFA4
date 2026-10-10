@@ -1,0 +1,11 @@
+<?php namespace App\Controllers;
+use App\Models\UserModel;
+class Staff extends BaseController
+{ private function rules($id=null){$r=['username'=>'required|max_length[50]','full_name'=>'required|max_length[100]','avatar'=>'permit_empty|is_image[avatar]|max_size[avatar,2048]']; if(!$id)$r['password']='required|min_length[8]'; else $r['password']='permit_empty|min_length[8]'; return $r;}
+ public function index(){return $this->render('staff/index',['title'=>'Staff','staff'=>(new UserModel())->orderBy('id','DESC')->findAll()]);}
+ public function new(){return $this->render('staff/form',['title'=>'Add staff member','member'=>null]);}
+ public function create(){if(!$this->validate($this->rules()))return redirect()->back()->withInput()->with('errors',$this->validator->getErrors());$d=$this->request->getPost(['username','full_name']);$d['password']=password_hash($this->request->getPost('password'),PASSWORD_DEFAULT);$d['created_at']=date('Y-m-d H:i:s');$f=$this->request->getFile('avatar');if($f&&$f->isValid()&&!$f->hasMoved()){$n=$f->getRandomName();$f->move(FCPATH.'uploads/avatars',$n);$d['avatar']=$n;}(new UserModel())->insert($d);return redirect()->to('/staff')->with('success','Staff member added.');}
+ public function edit($id){$m=(new UserModel())->find($id);return $m?$this->render('staff/form',['title'=>'Edit staff member','member'=>$m]):redirect()->to('/staff');}
+ public function update($id){$m=new UserModel();if(!$this->validate($this->rules($id)))return redirect()->back()->withInput()->with('errors',$this->validator->getErrors());$d=$this->request->getPost(['username','full_name']);if($this->request->getPost('password'))$d['password']=password_hash($this->request->getPost('password'),PASSWORD_DEFAULT);$f=$this->request->getFile('avatar');if($f&&$f->isValid()&&!$f->hasMoved()){$n=$f->getRandomName();$f->move(FCPATH.'uploads/avatars',$n);$d['avatar']=$n;}$m->update($id,$d);return redirect()->to('/staff')->with('success','Staff member updated.');}
+ public function delete($id){if((int)$id===(int)session('user_id'))return redirect()->to('/staff')->with('error','You cannot delete your own account.');(new UserModel())->delete($id);return redirect()->to('/staff')->with('success','Staff member deleted.');}
+}
